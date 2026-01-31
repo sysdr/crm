@@ -1,0 +1,129 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Build outputs
+build/
+dist/
+*.egg-info/
+
+# Environment variables - NEVER commit these
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+# API Keys and Secrets - NEVER commit these
+*.pem
+*.key
+*secret*
+*credential*
+config/secrets.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+ENV/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# IDE and Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs and debugging
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Process files
+*.pid
+*.seed
+*.pid.lock
+
+# Test coverage
+coverage/
+*.lcov
+.nyc_output/
+
+# Docker
+docker-compose.override.yml
+.docker/
+
+# Istio
+istio*/
+*istio*.yaml
+*istio*.yml
+
+# Kubernetes secrets
+*-secret.yaml
+*-secret.yml
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Package manager locks (uncomment if you don't want to track these)
+# package-lock.json
+# yarn.lock
+
+# Runtime data
+pids/
+*.seed
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Yarn
+.yarn-integrity
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz

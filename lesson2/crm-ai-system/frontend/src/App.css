@@ -1,0 +1,217 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.App {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-size: 1.5rem;
+  color: #61dafb;
+}
+
+.App-header {
+  text-align: center;
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.App-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(90deg, #61dafb, #a2f986);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  color: #8892b0;
+  font-size: 1.1rem;
+}
+
+.lesson-info {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem;
+  background: rgba(97, 218, 251, 0.1);
+  border: 1px solid rgba(97, 218, 251, 0.3);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.lesson-info h3 {
+  color: #61dafb;
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.lesson-info p {
+  color: #ccd6f6;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.learn-points {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem 1.5rem;
+}
+
+.learn-points span {
+  color: #a2f986;
+  font-size: 0.85rem;
+}
+
+.error-banner {
+  background: #ff6b6b;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  font-weight: bold;
+}
+
+.dashboard {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.metric-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.metric-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.metric-card.primary {
+  border-left: 4px solid #61dafb;
+}
+
+.metric-card.success {
+  border-left: 4px solid #a2f986;
+}
+
+.metric-card.warning {
+  border-left: 4px solid #ffd93d;
+}
+
+.metric-card.info {
+  border-left: 4px solid #6c5ce7;
+}
+
+.metric-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.metric-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.metric-label {
+  color: #8892b0;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.demo-button, .refresh-button {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+
+.demo-button {
+  background: linear-gradient(135deg, #61dafb, #a2f986);
+  color: #1a1a2e;
+}
+
+.demo-button:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 5px 20px rgba(97, 218, 251, 0.4);
+}
+
+.demo-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.refresh-button {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.refresh-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.last-updated {
+  text-align: center;
+  color: #8892b0;
+  font-size: 0.9rem;
+}
+
+.App-footer {
+  text-align: center;
+  padding: 2rem;
+  color: #8892b0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+  .App-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .metric-value {
+    font-size: 1.8rem;
+  }
+}
