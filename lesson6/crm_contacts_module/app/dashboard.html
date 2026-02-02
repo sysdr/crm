@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Contacts Dashboard - Lesson 6</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 50%, #ecfeff 100%);
+            min-height: 100vh;
+            color: #1e293b;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+        
+        header {
+            background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%);
+            margin: -24px -24px 32px -24px;
+            padding: 40px 32px;
+            border-radius: 0 0 24px 24px;
+            box-shadow: 0 8px 32px rgba(2, 132, 199, 0.25);
+        }
+        header h1 { font-size: 2.5rem; color: #fff; margin-bottom: 8px; }
+        header p { color: rgba(255,255,255,0.9); font-size: 1.1rem; }
+        
+        .header-stats { display: flex; gap: 32px; margin-top: 24px; }
+        .header-stat {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .header-stat-value { font-size: 1.8rem; font-weight: 700; color: #fff; }
+        .header-stat-label { font-size: 0.85rem; color: rgba(255,255,255,0.85); margin-top: 4px; }
+        
+        .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
+        
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid #bae6fd;
+            box-shadow: 0 4px 16px rgba(56, 189, 248, 0.08);
+            transition: all 0.3s ease;
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(56, 189, 248, 0.15); }
+        .card h3 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card h3 .icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        .metric-card { grid-column: span 3; }
+        .metric-value {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .metric-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 8px;
+            background: #dcfce7;
+            color: #15803d;
+        }
+        .metric-label { color: #94a3b8; font-size: 0.9rem; margin-top: 8px; }
+        
+        .contacts-panel { grid-column: span 8; }
+        .contact-list { max-height: 400px; overflow-y: auto; }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            background: #f0f9ff;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+        .contact-item:hover { background: #e0f2fe; }
+        .contact-avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .contact-info { flex: 1; }
+        .contact-info h4 { color: #1e293b; font-size: 1rem; margin-bottom: 4px; }
+        .contact-info p { color: #64748b; font-size: 0.85rem; }
+        .contact-status {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-lead { background: #fef3c7; color: #92400e; }
+        .status-opportunity { background: #dbeafe; color: #1e40af; }
+        .status-customer { background: #dcfce7; color: #15803d; }
+        
+        .operations-panel { grid-column: span 4; }
+        .operation-form { background: #f0f9ff; padding: 20px; border-radius: 12px; margin-bottom: 16px; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; margin-bottom: 6px; color: #475569; font-size: 0.9rem; font-weight: 500; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            background: #fff;
+            border: 2px solid #bae6fd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(14, 165, 233, 0.3); }
+        .btn-secondary { background: #fff; color: #0284c7; border: 2px solid #bae6fd; }
+        .btn-secondary:hover { background: #f0f9ff; }
+        
+        .response-panel {
+            margin-top: 16px;
+            padding: 16px;
+            background: #1e293b;
+            border-radius: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .response-panel pre { white-space: pre-wrap; color: #38bdf8; font-size: 0.8rem; line-height: 1.5; }
+        .response-panel.error pre { color: #f87171; }
+        .response-panel.success pre { color: #4ade80; }
+        
+        .quick-actions { grid-column: span 12; }
+        .actions-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .action-card {
+            padding: 20px;
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .action-card:hover { background: #fff; transform: translateY(-3px); box-shadow: 0 8px 24px rgba(14, 165, 233, 0.12); }
+        .action-icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 12px;
+            background: linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .action-card h4 { color: #1e293b; font-size: 0.95rem; margin-bottom: 4px; }
+        .action-card p { color: #94a3b8; font-size: 0.8rem; }
+        
+        @media (max-width: 1024px) {
+            .metric-card { grid-column: span 6; }
+            .contacts-panel, .operations-panel { grid-column: span 12; }
+            .actions-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 640px) {
+            .metric-card { grid-column: span 12; }
+            .actions-grid { grid-template-columns: 1fr; }
+            .header-stats { flex-direction: column; gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>CRM Contacts Dashboard</h1>
+            <p>AI-Powered Contact Management Module - Lesson 6</p>
+            <div class="header-stats">
+                <div class="header-stat">
+                    <div class="header-stat-value" id="totalContacts">0</div>
+                    <div class="header-stat-label">Total Contacts</div>
+                </div>
+                <div class="header-stat">
+                    <div class="header-stat-value" id="activeContacts">0</div>
+                    <div class="header-stat-label">Active Contacts</div>
+                </div>
+                <div class="header-stat">
+                    <div class="header-stat-value" id="apiCalls">0</div>
+                    <div class="header-stat-label">API Calls</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <div class="card metric-card">
+                <h3><span class="icon">👤</span> Total Contacts</h3>
+                <div class="metric-value" id="metricTotal">0</div>
+                <span class="metric-change">Live count</span>
+                <div class="metric-label">All contacts in system</div>
+            </div>
+            
+            <div class="card metric-card">
+                <h3><span class="icon">🎯</span> Leads</h3>
+                <div class="metric-value" id="metricLeads">0</div>
+                <span class="metric-change">Status: Lead</span>
+                <div class="metric-label">Potential customers</div>
+            </div>
+            
+            <div class="card metric-card">
+                <h3><span class="icon">💼</span> Opportunities</h3>
+                <div class="metric-value" id="metricOpportunities">0</div>
+                <span class="metric-change">Status: Opportunity</span>
+                <div class="metric-label">Active deals</div>
+            </div>
+            
+            <div class="card metric-card">
+                <h3><span class="icon">🏷️</span> Tagged</h3>
+                <div class="metric-value" id="metricTagged">0</div>
+                <span class="metric-change">With tags</span>
+                <div class="metric-label">Categorized contacts</div>
+            </div>
+
+            <div class="card contacts-panel">
+                <h3>
+                    <span class="icon">📋</span> Contact List
+                    <button class="btn btn-secondary" onclick="refreshContacts()" style="margin-left: auto; padding: 8px 16px; font-size: 0.85rem; width: auto;">↻ Refresh</button>
+                </h3>
+                <div class="contact-list" id="contactList">
+                    <div class="contact-item">
+                        <div class="contact-avatar">?</div>
+                        <div class="contact-info">
+                            <h4>Loading contacts...</h4>
+                            <p>Please wait</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card operations-panel">
+                <h3><span class="icon">⚙️</span> Contact Operations</h3>
+                
+                <div class="operation-form">
+                    <h4 style="color: #0284c7; margin-bottom: 14px;">➕ Create New Contact</h4>
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" id="firstName" placeholder="Enter first name">
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" id="lastName" placeholder="Enter last name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="email" placeholder="Enter email address">
+                    </div>
+                    <div class="form-group">
+                        <label>Company</label>
+                        <input type="text" id="company" placeholder="Enter company name">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="status">
+                            <option value="Lead">Lead</option>
+                            <option value="Opportunity">Opportunity</option>
+                            <option value="Customer">Customer</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="createContact()">🚀 Create Contact</button>
+                    <button class="btn btn-secondary" onclick="generateContact()">🎲 Auto-Generate</button>
+                </div>
+                
+                <div class="response-panel" id="responsePanel">
+                    <pre id="responseOutput">// Awaiting operation...</pre>
+                </div>
+            </div>
+
+            <div class="card quick-actions">
+                <h3><span class="icon">⚡</span> Quick Actions</h3>
+                <div class="actions-grid">
+                    <div class="action-card" onclick="bulkCreate()">
+                        <div class="action-icon">👥</div>
+                        <h4>Bulk Create</h4>
+                        <p>Create 5 test contacts</p>
+                    </div>
+                    <div class="action-card" onclick="runDemo()">
+                        <div class="action-icon">🎬</div>
+                        <h4>Run Demo</h4>
+                        <p>Full CRUD demonstration</p>
+                    </div>
+                    <div class="action-card" onclick="testAPI()">
+                        <div class="action-icon">🧪</div>
+                        <h4>Test API</h4>
+                        <p>Run endpoint tests</p>
+                    </div>
+                    <div class="action-card" onclick="window.open('/docs', '_blank')">
+                        <div class="action-icon">📚</div>
+                        <h4>API Docs</h4>
+                        <p>OpenAPI/Swagger UI</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let apiCalls = 0;
+        
+        function showResponse(data, type = 'normal') {
+            const panel = document.getElementById('responsePanel');
+            const output = document.getElementById('responseOutput');
+            panel.className = 'response-panel ' + type;
+            output.textContent = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+        }
+        
+        function incrementApiCalls() {
+            apiCalls++;
+            document.getElementById('apiCalls').textContent = apiCalls;
+        }
+        
+        async function refreshContacts() {
+            incrementApiCalls();
+            try {
+                const res = await fetch('/contacts/');
+                const contacts = await res.json();
+                updateMetrics(contacts);
+                renderContacts(contacts);
+            } catch (err) {
+                showResponse({ error: err.message }, 'error');
+            }
+        }
+        
+        function updateMetrics(contacts) {
+            const total = contacts.length;
+            const leads = contacts.filter(c => c.status === 'Lead').length;
+            const opportunities = contacts.filter(c => c.status === 'Opportunity').length;
+            const tagged = contacts.filter(c => c.tags && c.tags.length > 0).length;
+            
+            document.getElementById('totalContacts').textContent = total;
+            document.getElementById('activeContacts').textContent = total;
+            document.getElementById('metricTotal').textContent = total;
+            document.getElementById('metricLeads').textContent = leads;
+            document.getElementById('metricOpportunities').textContent = opportunities;
+            document.getElementById('metricTagged').textContent = tagged;
+        }
+        
+        function renderContacts(contacts) {
+            const container = document.getElementById('contactList');
+            if (contacts.length === 0) {
+                container.innerHTML = `
+                    <div class="contact-item">
+                        <div class="contact-avatar">?</div>
+                        <div class="contact-info">
+                            <h4>No contacts yet</h4>
+                            <p>Create a contact to get started</p>
+                        </div>
+                    </div>`;
+                return;
+            }
+            
+            container.innerHTML = contacts.map(contact => `
+                <div class="contact-item">
+                    <div class="contact-avatar">${contact.first_name.charAt(0)}${contact.last_name.charAt(0)}</div>
+                    <div class="contact-info">
+                        <h4>${contact.first_name} ${contact.last_name}</h4>
+                        <p>${contact.email} ${contact.company ? '• ' + contact.company : ''}</p>
+                    </div>
+                    <span class="contact-status status-${contact.status.toLowerCase()}">${contact.status}</span>
+                </div>
+            `).join('');
+        }
+        
+        function generateContact() {
+            const firstNames = ['John', 'Jane', 'Mike', 'Sarah', 'David', 'Emily', 'Chris', 'Lisa'];
+            const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis'];
+            const companies = ['TechCorp', 'GlobalSoft', 'InnovateLabs', 'DataDriven', 'CloudFirst'];
+            
+            document.getElementById('firstName').value = firstNames[Math.floor(Math.random() * firstNames.length)];
+            document.getElementById('lastName').value = lastNames[Math.floor(Math.random() * lastNames.length)];
+            document.getElementById('email').value = `${document.getElementById('firstName').value.toLowerCase()}.${document.getElementById('lastName').value.toLowerCase()}${Date.now() % 1000}@example.com`;
+            document.getElementById('company').value = companies[Math.floor(Math.random() * companies.length)];
+            
+            showResponse({ message: 'Contact data generated! Click Create to save.' }, 'success');
+        }
+        
+        async function createContact() {
+            const contact = {
+                first_name: document.getElementById('firstName').value,
+                last_name: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                company: document.getElementById('company').value,
+                status: document.getElementById('status').value,
+                tags: ['Dashboard']
+            };
+            
+            if (!contact.first_name || !contact.last_name || !contact.email) {
+                showResponse({ error: 'First name, last name, and email are required' }, 'error');
+                return;
+            }
+            
+            incrementApiCalls();
+            try {
+                const res = await fetch('/contacts/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(contact)
+                });
+                const data = await res.json();
+                showResponse(data, res.ok ? 'success' : 'error');
+                if (res.ok) {
+                    document.getElementById('firstName').value = '';
+                    document.getElementById('lastName').value = '';
+                    document.getElementById('email').value = '';
+                    document.getElementById('company').value = '';
+                    refreshContacts();
+                }
+            } catch (err) {
+                showResponse({ error: err.message }, 'error');
+            }
+        }
+        
+        async function bulkCreate() {
+            showResponse({ message: '👥 Creating 5 test contacts...' });
+            const contacts = [
+                { first_name: 'Tom', last_name: 'Wilson', email: `tom.wilson${Date.now()}@example.com`, company: 'TechStart', status: 'Lead' },
+                { first_name: 'Emma', last_name: 'Taylor', email: `emma.taylor${Date.now()}@example.com`, company: 'DataCorp', status: 'Opportunity' },
+                { first_name: 'James', last_name: 'Anderson', email: `james.anderson${Date.now()}@example.com`, company: 'CloudBase', status: 'Lead' },
+                { first_name: 'Sophie', last_name: 'Martin', email: `sophie.martin${Date.now()}@example.com`, company: 'AILabs', status: 'Customer' },
+                { first_name: 'Oliver', last_name: 'White', email: `oliver.white${Date.now()}@example.com`, company: 'WebFlow', status: 'Opportunity' }
+            ];
+            
+            let created = 0;
+            for (const contact of contacts) {
+                incrementApiCalls();
+                try {
+                    const res = await fetch('/contacts/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ...contact, tags: ['Bulk', 'Test'] })
+                    });
+                    if (res.ok) created++;
+                } catch (e) {}
+            }
+            
+            showResponse({ bulkCreateComplete: true, contactsCreated: created }, 'success');
+            refreshContacts();
+        }
+        
+        async function runDemo() {
+            showResponse({ message: '🎬 Running full CRUD demo...' });
+            let results = [];
+            
+            // CREATE
+            incrementApiCalls();
+            const createRes = await fetch('/contacts/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    first_name: 'Demo',
+                    last_name: 'User',
+                    email: `demo${Date.now()}@example.com`,
+                    company: 'DemoCorp',
+                    status: 'Lead',
+                    tags: ['Demo', 'Test']
+                })
+            });
+            const createData = await createRes.json();
+            results.push({ operation: 'CREATE', status: createRes.ok ? 'PASS' : 'FAIL', id: createData.id });
+            
+            if (createRes.ok) {
+                // READ
+                incrementApiCalls();
+                const readRes = await fetch(`/contacts/${createData.id}`);
+                results.push({ operation: 'READ', status: readRes.ok ? 'PASS' : 'FAIL' });
+                
+                // UPDATE
+                incrementApiCalls();
+                const updateRes = await fetch(`/contacts/${createData.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'Opportunity', tags: ['Demo', 'Test', 'Updated'] })
+                });
+                results.push({ operation: 'UPDATE', status: updateRes.ok ? 'PASS' : 'FAIL' });
+                
+                // DELETE
+                incrementApiCalls();
+                const deleteRes = await fetch(`/contacts/${createData.id}`, { method: 'DELETE' });
+                results.push({ operation: 'DELETE (soft)', status: deleteRes.ok ? 'PASS' : 'FAIL' });
+            }
+            
+            const passed = results.filter(r => r.status === 'PASS').length;
+            showResponse({
+                demoComplete: true,
+                summary: `${passed}/${results.length} operations successful`,
+                results
+            }, passed === results.length ? 'success' : 'error');
+            
+            refreshContacts();
+        }
+        
+        async function testAPI() {
+            showResponse({ message: '🧪 Testing API endpoints...' });
+            let tests = [];
+            
+            // Test GET /contacts/
+            incrementApiCalls();
+            try {
+                const res = await fetch('/contacts/');
+                tests.push({ endpoint: 'GET /contacts/', status: res.ok ? 'PASS' : 'FAIL', code: res.status });
+            } catch (e) {
+                tests.push({ endpoint: 'GET /contacts/', status: 'FAIL', error: e.message });
+            }
+            
+            // Test POST with invalid data
+            incrementApiCalls();
+            try {
+                const res = await fetch('/contacts/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                tests.push({ endpoint: 'POST /contacts/ (validation)', status: res.status === 422 ? 'PASS' : 'FAIL', code: res.status });
+            } catch (e) {
+                tests.push({ endpoint: 'POST /contacts/ (validation)', status: 'FAIL', error: e.message });
+            }
+            
+            // Test GET with invalid UUID
+            incrementApiCalls();
+            try {
+                const res = await fetch('/contacts/00000000-0000-0000-0000-000000000000');
+                tests.push({ endpoint: 'GET /contacts/{invalid}', status: res.status === 404 ? 'PASS' : 'FAIL', code: res.status });
+            } catch (e) {
+                tests.push({ endpoint: 'GET /contacts/{invalid}', status: 'FAIL', error: e.message });
+            }
+            
+            // Test OpenAPI docs
+            incrementApiCalls();
+            try {
+                const res = await fetch('/docs');
+                tests.push({ endpoint: 'GET /docs', status: res.ok ? 'PASS' : 'FAIL', code: res.status });
+            } catch (e) {
+                tests.push({ endpoint: 'GET /docs', status: 'FAIL', error: e.message });
+            }
+            
+            const passed = tests.filter(t => t.status === 'PASS').length;
+            showResponse({
+                testComplete: true,
+                summary: `${passed}/${tests.length} tests passed`,
+                tests
+            }, passed === tests.length ? 'success' : 'error');
+        }
+        
+        // Initial load
+        refreshContacts();
+        
+        // Auto-refresh every 10 seconds
+        setInterval(refreshContacts, 10000);
+    </script>
+</body>
+</html>
