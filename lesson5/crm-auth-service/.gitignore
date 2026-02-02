@@ -1,0 +1,96 @@
+# Compiled binary
+crm-auth-service
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.html
+
+# Go workspace file
+go.work
+
+# Dependency directories
+vendor/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+secrets/
+credentials/
+
+# API Keys and sensitive data
+*api_key*
+*apikey*
+*secret*
+*.credentials
+
+# Docker
+.docker/
+
+# Application state files
+.app_pid
+*.pid
+*.log
+logs/
+
+# Build artifacts
+dist/
+build/
+bin/
+
+# Node.js (if frontend added later)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python (if scripts added later)
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+.venv/
+ENV/
+.pytest_cache/
+*.egg-info/
+
+# Istio
+istio-*/
+istio.yaml
+*-istio.yaml
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
