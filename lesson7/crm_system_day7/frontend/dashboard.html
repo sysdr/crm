@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Dashboard - Metrics</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f0f4f8; margin: 0; padding: 20px; }
+        .header { text-align: center; margin-bottom: 24px; }
+        .header h1 { color: #1a365d; margin: 0; }
+        .error-banner { background: #fed7d7; color: #c53030; padding: 12px; border-radius: 8px; margin-bottom: 16px; text-align: center; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .metric-card { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; }
+        .metric-card .value { font-size: 28px; font-weight: bold; color: #2d3748; }
+        .metric-card .label { font-size: 12px; color: #718096; margin-top: 4px; }
+        .actions { text-align: center; margin: 20px 0; }
+        .btn { padding: 12px 24px; font-size: 16px; border: none; border-radius: 8px; cursor: pointer; background: #3182ce; color: #fff; }
+        .btn:hover { background: #2c5282; }
+        .btn:disabled { background: #a0aec0; cursor: not-allowed; }
+        .last-updated { text-align: center; color: #718096; font-size: 14px; margin-top: 16px; }
+        .links { text-align: center; margin-top: 24px; }
+        .links a { color: #3182ce; margin: 0 12px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>CRM Dashboard</h1>
+        <p>Real-time metrics</p>
+    </div>
+    <div id="errorBanner" class="error-banner" style="display:none;"></div>
+    <div id="metricsGrid" class="metrics-grid">Loading...</div>
+    <div class="actions">
+        <button id="demoBtn" class="btn">Run Demo (update metrics)</button>
+        <button id="refreshBtn" class="btn">Refresh</button>
+    </div>
+    <div id="lastUpdated" class="last-updated"></div>
+    <div class="links">
+        <a href="index.html">Add Contact</a>
+        <a href="dashboard.html">Dashboard</a>
+    </div>
+    <script>
+        const BACKEND_URL = 'http://localhost:3000';
+        const grid = document.getElementById('metricsGrid');
+        const errorBanner = document.getElementById('errorBanner');
+        const lastUpdated = document.getElementById('lastUpdated');
+        const demoBtn = document.getElementById('demoBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+
+        function showError(msg) {
+            errorBanner.textContent = msg;
+            errorBanner.style.display = msg ? 'block' : 'none';
+        }
+        function formatCurrency(n) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(n || 0); }
+        function formatDate(s) { return s ? new Date(s).toLocaleString() : 'Never'; }
+
+        function renderMetrics(m) {
+            if (!m) { grid.innerHTML = 'No data'; return; }
+            grid.innerHTML = [
+                { value: m.totalContacts, label: 'Total Contacts' },
+                { value: formatCurrency(m.revenue), label: 'Revenue' },
+                { value: m.activeDeals, label: 'Active Deals' },
+                { value: (m.conversionRate || 0) + '%', label: 'Conversion Rate' },
+                { value: m.newLeads, label: 'New Leads' },
+                { value: m.closedDeals, label: 'Closed Deals' },
+                { value: m.pendingTasks, label: 'Pending Tasks' },
+                { value: (m.customerSatisfaction || 0) + '%', label: 'Customer Satisfaction' }
+            ].map(function(c) { return '<div class="metric-card"><div class="value">' + c.value + '</div><div class="label">' + c.label + '</div></div>'; }).join('');
+            lastUpdated.textContent = 'Last updated: ' + formatDate(m.lastUpdated);
+        }
+
+        function fetchMetrics() {
+            fetch(BACKEND_URL + '/api/metrics').then(function(r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+            }).then(function(data) {
+                renderMetrics(data);
+                showError(null);
+            }).catch(function(err) {
+                showError('Failed to load metrics. Is the backend running? ' + err.message);
+                grid.innerHTML = 'Error loading metrics.';
+            });
+        }
+
+        demoBtn.addEventListener('click', function() {
+            demoBtn.disabled = true;
+            fetch(BACKEND_URL + '/api/demo', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.metrics) renderMetrics(data.metrics);
+                    demoBtn.disabled = false;
+                })
+                .catch(function() { demoBtn.disabled = false; });
+        });
+        refreshBtn.addEventListener('click', fetchMetrics);
+
+        fetchMetrics();
+        setInterval(fetchMetrics, 10000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+venv/
+.env
+.env.local
+.env.*.local
+
+# Build / runtime
+*.log
+backend.log
+frontend.log
+*.pid
+backend.pid
+frontend.pid
+
+# Database (local SQLite)
+*.db
+crm.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Secrets / keys (never commit)
+*.pem
+*.key
+*api*key*
+*secret*
+.env
+
+# Istio (if present)
+*istio*
+
+# Optional: lock files (uncomment if you want to ignore)
+# package-lock.json

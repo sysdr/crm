@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Contact - CRM System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Add New Contact</h1>
+        <form id="contactForm">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+                <div class="error-message" id="nameError"></div>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                <div class="error-message" id="emailError"></div>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone:</label>
+                <input type="text" id="phone" name="phone">
+                <div class="error-message" id="phoneError"></div>
+            </div>
+            <button type="submit" id="submitBtn">Add Contact</button>
+            <div id="statusMessage" class="status-message"></div>
+        </form>
+
+        <hr style="margin-top: 40px; margin-bottom: 30px;">
+        <h2>Existing Contacts</h2>
+        <div id="contactsList">
+            <p>Loading contacts...</p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
