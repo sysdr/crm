@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13-alpine
+    container_name: crm-postgres
+    environment:
+      POSTGRES_DB: crmdb
+      POSTGRES_USER: crmuser
+      POSTGRES_PASSWORD: crmpassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crmuser -d crmdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: crm-backend-app
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: crm-postgres
+      DB_PORT: 5432
+      DB_USER: crmuser
+      DB_PASSWORD: crmpassword
+      DB_NAME: crmdb
+      PORT: 8080
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: on-failure

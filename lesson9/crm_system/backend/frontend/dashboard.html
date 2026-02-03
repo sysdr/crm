@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM — Contact Search & Metrics</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #f6f7f5;
+            color: #1c1917;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.5;
+        }
+        .container { max-width: 960px; margin: 0 auto; }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e7e5e4;
+        }
+        .header h1 { margin: 0; font-size: 1.75rem; font-weight: 700; color: #0d9488; }
+        .header .sub { color: #78716c; font-size: 0.95rem; margin-top: 4px; }
+
+        /* Lesson info panel */
+        .lesson-panel {
+            background: #fff;
+            border: 1px solid #e7e5e4;
+            border-radius: 10px;
+            padding: 18px 20px;
+            margin-bottom: 24px;
+            border-left: 4px solid #0d9488;
+        }
+        .lesson-panel h2 { margin: 0 0 8px 0; font-size: 0.9rem; font-weight: 600; color: #57534e; text-transform: uppercase; letter-spacing: 0.03em; }
+        .lesson-panel p { margin: 0; font-size: 0.9rem; color: #44403c; }
+        .lesson-panel .flow {
+            margin-top: 12px;
+            font-size: 0.8rem;
+            color: #78716c;
+            font-family: ui-monospace, monospace;
+        }
+
+        /* Search section — real-time operation */
+        .search-section {
+            background: #fff;
+            border: 1px solid #e7e5e4;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .search-section h3 { margin: 0 0 8px 0; font-size: 1rem; font-weight: 600; color: #292524; }
+        .search-help { margin: 0 0 14px 0; font-size: 0.85rem; color: #57534e; line-height: 1.5; }
+        .search-help code { background: #f5f5f4; padding: 1px 6px; border-radius: 4px; font-size: 0.8rem; }
+        .search-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+        .search-row input {
+            flex: 1;
+            min-width: 180px;
+            padding: 10px 14px;
+            border: 1px solid #d6d3d1;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+        .search-row input:focus { outline: none; border-color: #0d9488; box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.15); }
+        .btn {
+            padding: 10px 18px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #0d9488;
+            color: #fff;
+        }
+        .btn:hover { background: #0f766e; }
+        .btn:disabled { background: #a8a29e; cursor: not-allowed; }
+        .btn-secondary { background: #e7e5e4; color: #44403c; }
+        .btn-secondary:hover { background: #d6d3d1; }
+        #searchResultCount { font-size: 0.85rem; color: #78716c; margin-left: 8px; }
+        .contacts-list {
+            margin-top: 12px;
+            max-height: 220px;
+            overflow-y: auto;
+            border: 1px solid #e7e5e4;
+            border-radius: 8px;
+            background: #fafaf9;
+        }
+        .contacts-list .item {
+            padding: 10px 14px;
+            border-bottom: 1px solid #e7e5e4;
+            font-size: 0.9rem;
+        }
+        .contacts-list .item:last-child { border-bottom: none; }
+        .contacts-list .item .name { font-weight: 600; color: #292524; }
+        .contacts-list .item .meta { font-size: 0.8rem; color: #78716c; margin-top: 2px; }
+        .contacts-list .empty { padding: 20px; text-align: center; color: #78716c; font-size: 0.9rem; }
+
+        /* Metrics grid */
+        .section-title { font-size: 0.85rem; font-weight: 600; color: #57534e; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 12px; }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        .metric-card {
+            background: #fff;
+            border: 1px solid #e7e5e4;
+            border-radius: 10px;
+            padding: 18px;
+            text-align: center;
+            border-top: 3px solid #0d9488;
+        }
+        .metric-card .value { font-size: 1.6rem; font-weight: 700; color: #1c1917; }
+        .metric-card .label { font-size: 0.75rem; color: #78716c; margin-top: 4px; }
+
+        /* Actions */
+        .actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px; }
+        .last-updated { text-align: center; font-size: 0.8rem; color: #a8a29e; }
+        .error-banner { background: #fef2f2; color: #b91c1c; padding: 12px; border-radius: 8px; margin-bottom: 16px; text-align: center; font-size: 0.9rem; border: 1px solid #fecaca; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>CRM Dashboard</h1>
+            <p class="sub">Contact Search & Real-time Metrics — Lesson: Filtering by Name</p>
+        </div>
+
+        <div id="errorBanner" class="error-banner" style="display:none;"></div>
+
+        <div class="lesson-panel">
+            <h2>Progressive Search Architecture</h2>
+            <p><strong>GET /contacts?name=...</strong> uses a <code>LIKE</code> clause in SQL for filtering. This is the minimum viable approach: fine for small datasets. At scale, a leading wildcard <code>%name%</code> prevents index use (full table scan). Future upgrade path: full-text search (e.g. Elasticsearch) for large data.</p>
+            <div class="flow">Data flow: Client → Backend (extract name) → Repository (SQL LIKE) → PostgreSQL → JSON response → Client</div>
+        </div>
+
+        <div class="search-section">
+            <h3>Search contacts by name (live)</h3>
+            <p class="search-help">How to use: Click <strong>Run Demo</strong> below once to add sample contacts. Then click <strong>Show all</strong> to list everyone, or type part of a first or last name (e.g. <code>demo</code>, <code>Demo</code>, <code>John</code>, <code>Ali</code>) and click <strong>Search</strong>. Search matches first and last name, partial and case-insensitive (<code>GET /contacts?name=...</code>).</p>
+            <div class="search-row">
+                <input type="text" id="searchInput" placeholder="Type name (e.g. demo, John, Ali) then Search" />
+                <button type="button" id="searchBtn" class="btn">Search</button>
+                <button type="button" id="clearSearchBtn" class="btn btn-secondary">Show all</button>
+                <span id="searchResultCount"></span>
+            </div>
+            <div class="contacts-list" id="contactsList">
+                <div class="empty" id="contactsListEmpty">Loading… Click <strong>Show all</strong> to list contacts, or <strong>Run Demo</strong> first if the list is empty.</div>
+            </div>
+        </div>
+
+        <div class="section-title">Metrics (refreshed every 10s)</div>
+        <div id="metricsGrid" class="metrics-grid">Loading...</div>
+        <div class="actions">
+            <button id="demoBtn" class="btn">Run Demo</button>
+            <button id="refreshBtn" class="btn btn-secondary">Refresh metrics</button>
+        </div>
+        <div id="lastUpdated" class="last-updated"></div>
+    </div>
+
+    <script>
+        var BACKEND_URL = window.location.origin;
+        var grid = document.getElementById("metricsGrid");
+        var errorBanner = document.getElementById("errorBanner");
+        var lastUpdated = document.getElementById("lastUpdated");
+        var demoBtn = document.getElementById("demoBtn");
+        var refreshBtn = document.getElementById("refreshBtn");
+        var searchInput = document.getElementById("searchInput");
+        var searchBtn = document.getElementById("searchBtn");
+        var clearSearchBtn = document.getElementById("clearSearchBtn");
+        var contactsList = document.getElementById("contactsList");
+        var searchResultCount = document.getElementById("searchResultCount");
+
+        function showError(msg) {
+            errorBanner.textContent = msg || "";
+            errorBanner.style.display = msg ? "block" : "none";
+        }
+        function formatCurrency(n) { return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(n || 0); }
+        function formatDate(s) { return s ? new Date(s).toLocaleString() : "Never"; }
+
+        function renderMetrics(m) {
+            if (!m) { grid.innerHTML = "No data"; return; }
+            grid.innerHTML = [
+                { value: m.totalContacts, label: "Total Contacts" },
+                { value: formatCurrency(m.revenue), label: "Revenue" },
+                { value: m.activeDeals, label: "Active Deals" },
+                { value: (m.conversionRate || 0) + "%", label: "Conversion Rate" },
+                { value: m.newLeads, label: "New Leads" },
+                { value: m.closedDeals, label: "Closed Deals" },
+                { value: m.pendingTasks, label: "Pending Tasks" },
+                { value: (m.customerSatisfaction || 0) + "%", label: "Satisfaction" }
+            ].map(function(c) { return "<div class=\"metric-card\"><div class=\"value\">" + c.value + "</div><div class=\"label\">" + c.label + "</div></div>"; }).join("");
+            lastUpdated.textContent = "Last updated: " + formatDate(m.lastUpdated);
+        }
+
+        function fetchMetrics() {
+            fetch(BACKEND_URL + "/api/metrics")
+                .then(function(r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+                .then(function(data) { renderMetrics(data); showError(null); })
+                .catch(function(err) { showError("Backend unreachable: " + err.message); grid.innerHTML = "—"; });
+        }
+
+        function renderContacts(contacts, searchQuery) {
+            var q = (searchQuery || "").trim();
+            if (!contacts || !contacts.length) {
+                searchResultCount.textContent = "0 results";
+                if (!q) {
+                    contactsList.innerHTML = "<div class=\"empty\">No contacts in the database. Click <strong>Run Demo</strong> below to add sample contacts (Demo User One, Two, etc.), then click <strong>Show all</strong> or search for <strong>demo</strong>.</div>";
+                } else {
+                    contactsList.innerHTML = "<div class=\"empty\">No contacts match \"" + escapeHtml(q) + "\". Try another name (e.g. demo, John) or click <strong>Show all</strong> to see everyone.</div>";
+                }
+                return;
+            }
+            searchResultCount.textContent = contacts.length + " result(s)";
+            contactsList.innerHTML = contacts.map(function(c) {
+                return "<div class=\"item\"><span class=\"name\">" + escapeHtml(c.first_name + " " + c.last_name) + "</span><div class=\"meta\">" + escapeHtml(c.email) + " · " + escapeHtml(c.phone) + "</div></div>";
+            }).join("");
+        }
+        function escapeHtml(s) {
+            var div = document.createElement("div");
+            div.textContent = s;
+            return div.innerHTML;
+        }
+
+        function doSearch(name) {
+            var url = BACKEND_URL + "/contacts";
+            var q = name ? name.trim() : "";
+            if (q) url += "?name=" + encodeURIComponent(q);
+            fetch(url)
+                .then(function(r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+                .then(function(data) { renderContacts(data, q); showError(null); })
+                .catch(function(err) { showError("Search failed: " + err.message); renderContacts([], q); });
+        }
+
+        searchBtn.addEventListener("click", function() { doSearch(searchInput.value); });
+        clearSearchBtn.addEventListener("click", function() { searchInput.value = ""; doSearch(""); });
+        searchInput.addEventListener("keydown", function(e) { if (e.key === "Enter") doSearch(searchInput.value); });
+
+        demoBtn.addEventListener("click", function() {
+            demoBtn.disabled = true;
+            fetch(BACKEND_URL + "/api/demo", { method: "POST", headers: { "Content-Type": "application/json" } })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.metrics) renderMetrics(data.metrics);
+                    doSearch(searchInput.value);
+                    demoBtn.disabled = false;
+                })
+                .catch(function() { demoBtn.disabled = false; });
+        });
+        refreshBtn.addEventListener("click", function() { fetchMetrics(); doSearch(searchInput.value); });
+
+        fetchMetrics();
+        doSearch("");
+        setInterval(fetchMetrics, 10000);
+    </script>
+</body>
+</html>
