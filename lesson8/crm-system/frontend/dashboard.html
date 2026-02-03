@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 8 CRM — Lead & Contact Pipeline</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface2: #334155;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --accent: #34d399;
+            --accent-dim: #10b981;
+            --danger: #f87171;
+            --radius: 12px;
+            --radius-sm: 8px;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--surface2);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        .topbar h1 {
+            margin: 0;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .topbar .tagline {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        .about {
+            background: var(--surface);
+            border: 1px solid var(--surface2);
+            border-radius: var(--radius);
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .about h2 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--muted);
+        }
+        .about p {
+            margin: 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--text);
+        }
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .metric-card {
+            background: var(--surface);
+            border: 1px solid var(--surface2);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            text-align: center;
+            border-left: 4px solid var(--accent);
+        }
+        .metric-card .value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .metric-card .label {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 0.25rem;
+        }
+        .actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        @media (max-width: 700px) {
+            .actions-grid { grid-template-columns: 1fr; }
+        }
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--surface2);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+        }
+        .panel h3 {
+            margin: 0 0 1rem 0;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .form-row {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.75rem;
+        }
+        .form-row input {
+            flex: 1;
+            min-width: 120px;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--surface2);
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            color: var(--text);
+            font-family: inherit;
+        }
+        .form-row input::placeholder { color: var(--muted); }
+        .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            font-family: inherit;
+            font-weight: 500;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg);
+        }
+        .btn-secondary {
+            background: var(--surface2);
+            color: var(--text);
+        }
+        .leads-list {
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        .lead-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--surface2);
+            gap: 0.5rem;
+        }
+        .lead-item:last-child { border-bottom: none; }
+        .lead-item .info {
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+        .lead-item .info small { color: var(--muted); }
+        .lead-item .status {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            background: var(--surface2);
+            color: var(--muted);
+        }
+        .lead-item .status.convertible { background: rgba(52, 211, 153, 0.2); color: var(--accent); }
+        .error-banner {
+            background: rgba(248, 113, 113, 0.15);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .global-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        .last-updated {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div>
+            <h1>Day 8 CRM</h1>
+            <p class="tagline">Lead & Contact Pipeline — your actions update the metrics below</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="about">
+            <h2>About this project</h2>
+            <p>This is a <strong>Lead-to-Contact</strong> CRM. You add leads (prospects), then convert them into contacts when they become customers. The dashboard shows real-time counts and business metrics. Use <strong>Add Lead</strong> and <strong>Convert</strong> below to change the numbers—or <strong>Run Demo</strong> to seed sample data.</p>
+        </section>
+
+        <div id="errorBanner" class="error-banner" style="display:none;"></div>
+
+        <p class="section-title">Metrics</p>
+        <div id="metricsGrid" class="metrics-row">Loading…</div>
+
+        <p class="section-title">User operations</p>
+        <div class="actions-grid">
+            <div class="panel">
+                <h3>Add a lead</h3>
+                <form id="addLeadForm">
+                    <div class="form-row">
+                        <input type="text" id="leadName" placeholder="Name" required>
+                        <input type="email" id="leadEmail" placeholder="Email" required>
+                    </div>
+                    <div class="form-row">
+                        <input type="text" id="leadCompany" placeholder="Company (optional)">
+                        <button type="submit" class="btn btn-primary">Add Lead</button>
+                    </div>
+                </form>
+            </div>
+            <div class="panel">
+                <h3>Convert a lead to contact</h3>
+                <div id="leadsList" class="leads-list">Loading leads…</div>
+            </div>
+        </div>
+
+        <div class="global-actions">
+            <button id="demoBtn" class="btn btn-secondary">Run Demo (seed data)</button>
+            <button id="refreshBtn" class="btn btn-secondary">Refresh metrics</button>
+        </div>
+        <p id="lastUpdated" class="last-updated"></p>
+    </main>
+
+    <script>
+        var BACKEND_URL = 'http://localhost:5000';
+        var grid = document.getElementById('metricsGrid');
+        var errorBanner = document.getElementById('errorBanner');
+        var lastUpdated = document.getElementById('lastUpdated');
+        var demoBtn = document.getElementById('demoBtn');
+        var refreshBtn = document.getElementById('refreshBtn');
+        var leadsListEl = document.getElementById('leadsList');
+
+        function showError(msg) {
+            errorBanner.textContent = msg || '';
+            errorBanner.style.display = msg ? 'block' : 'none';
+        }
+        function formatCurrency(n) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(n || 0);
+        }
+        function formatDate(s) {
+            return s ? new Date(s).toLocaleString() : 'Never';
+        }
+
+        function renderMetrics(m) {
+            if (!m) { grid.innerHTML = 'No data'; return; }
+            var cards = [
+                { value: m.totalLeads, label: 'Total Leads' },
+                { value: m.totalContacts, label: 'Total Contacts' },
+                { value: (m.conversionRate || 0) + '%', label: 'Conversion Rate' },
+                { value: formatCurrency(m.revenue), label: 'Revenue' },
+                { value: m.activeDeals, label: 'Active Deals' },
+                { value: m.newLeads, label: 'New Leads' },
+                { value: m.closedDeals, label: 'Closed Deals' },
+                { value: m.pendingTasks, label: 'Pending Tasks' },
+                { value: (m.customerSatisfaction || 0) + '%', label: 'Customer Satisfaction' }
+            ];
+            grid.innerHTML = cards.map(function(c) {
+                return '<div class="metric-card"><div class="value">' + c.value + '</div><div class="label">' + c.label + '</div></div>';
+            }).join('');
+            lastUpdated.textContent = 'Last updated: ' + formatDate(m.lastUpdated);
+        }
+
+        function fetchMetrics() {
+            fetch(BACKEND_URL + '/api/metrics')
+                .then(function(r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .then(function(data) {
+                    renderMetrics(data);
+                    showError(null);
+                })
+                .catch(function(err) {
+                    showError('Cannot load metrics. Is the backend running? ' + (err.message || ''));
+                    grid.innerHTML = 'Error loading metrics.';
+                });
+        }
+
+        function loadLeads() {
+            fetch(BACKEND_URL + '/leads')
+                .then(function(r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .then(function(leads) {
+                    if (!leads.length) {
+                        leadsListEl.innerHTML = '<p style="color:var(--muted);font-size:0.9rem;">No leads yet. Add one with the form on the left.</p>';
+                        return;
+                    }
+                    leadsListEl.innerHTML = leads.map(function(l) {
+                        var canConvert = l.status !== 'Converted';
+                        var statusClass = canConvert ? 'convertible' : '';
+                        var btn = canConvert
+                            ? '<button class="btn btn-primary" data-id="' + l.id + '">Convert</button>'
+                            : '<span class="status">Converted</span>';
+                        return '<div class="lead-item">' +
+                            '<div class="info">' + (l.name || '') + ' <small>' + (l.email || '') + '</small></div>' +
+                            '<span class="status ' + statusClass + '">' + (l.status || '') + '</span>' +
+                            btn +
+                            '</div>';
+                    }).join('');
+                    leadsListEl.querySelectorAll('.btn[data-id]').forEach(function(btn) {
+                        btn.addEventListener('click', function() {
+                            var id = btn.getAttribute('data-id');
+                            convertLead(id, btn);
+                        });
+                    });
+                })
+                .catch(function() {
+                    leadsListEl.innerHTML = '<p style="color:var(--danger);">Could not load leads.</p>';
+                });
+        }
+
+        function convertLead(leadId, btnEl) {
+            if (btnEl.disabled) return;
+            btnEl.disabled = true;
+            fetch(BACKEND_URL + '/leads/' + leadId + '/convert', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    loadLeads();
+                    fetchMetrics();
+                })
+                .catch(function() { btnEl.disabled = false; })
+                .finally(function() { btnEl.disabled = false; });
+        }
+
+        document.getElementById('addLeadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var name = document.getElementById('leadName').value.trim();
+            var email = document.getElementById('leadEmail').value.trim();
+            if (!name || !email) return;
+            var payload = { name: name, email: email };
+            var company = document.getElementById('leadCompany').value.trim();
+            if (company) payload.company = company;
+            fetch(BACKEND_URL + '/leads', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.error) {
+                        showError(data.error);
+                    } else {
+                        showError(null);
+                        document.getElementById('leadName').value = '';
+                        document.getElementById('leadEmail').value = '';
+                        document.getElementById('leadCompany').value = '';
+                        loadLeads();
+                        fetchMetrics();
+                    }
+                })
+                .catch(function(err) {
+                    showError('Failed to add lead: ' + (err.message || ''));
+                });
+        });
+
+        demoBtn.addEventListener('click', function() {
+            demoBtn.disabled = true;
+            fetch(BACKEND_URL + '/api/demo', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.metrics) renderMetrics(data.metrics);
+                    loadLeads();
+                })
+                .catch(function() {})
+                .finally(function() { demoBtn.disabled = false; });
+        });
+        refreshBtn.addEventListener('click', function() {
+            fetchMetrics();
+            loadLeads();
+        });
+
+        fetchMetrics();
+        loadLeads();
+        setInterval(fetchMetrics, 15000);
+    </script>
+</body>
+</html>
